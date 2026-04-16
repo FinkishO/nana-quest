@@ -56,11 +56,11 @@
           <div class="editor-tab-content" id="tab-battleship"></div>
         </div>
         <div class="editor-footer">
-          <p class="editor-footer-note">"Apply Changes" updates the live preview instantly. Use "Download content.js" to save a backup.</p>
+          <p class="editor-footer-note">"Apply" updates the live preview. "Publish" pushes your edits to the live site for Nana.</p>
           <div class="editor-footer-actions">
+            <button class="editor-export-btn" id="editor-publish" style="background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700">🚀 Publish to site</button>
             <button class="editor-export-btn" id="editor-preview">▶ Preview from start</button>
-            <button class="editor-export-btn" id="editor-copy">📋 Copy content.js</button>
-            <button class="editor-export-btn" id="editor-download">💾 Download content.js</button>
+            <button class="editor-export-btn" id="editor-download">💾 Download backup</button>
           </div>
         </div>
       </div>
@@ -82,7 +82,7 @@
 
     document.getElementById("editor-close").addEventListener("click", closeEditor);
     document.getElementById("editor-apply").addEventListener("click", applyChanges);
-    document.getElementById("editor-copy").addEventListener("click", copyContent);
+    document.getElementById("editor-publish").addEventListener("click", publishToSite);
     document.getElementById("editor-download").addEventListener("click", downloadContent);
     document.getElementById("editor-preview").addEventListener("click", () => {
       applyChanges();
@@ -557,22 +557,38 @@
     return String(obj);
   }
 
-  function copyContent() {
+  // ─── PUBLISH TO LIVE SITE ─────────────────────────
+  const PUBLISH_API = '__PORT_5555__'.startsWith('__') ? 'http://localhost:5555' : '__PORT_5555__';
+
+  async function publishToSite() {
     applyChanges();
-    const text = generateContentJS();
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById("editor-copy");
-      const orig = btn.textContent;
-      btn.textContent = "✓ Copied!";
-      setTimeout(() => { btn.textContent = orig; }, 2000);
-    }).catch(() => {
-      const ta = document.createElement("textarea");
-      ta.value = text; document.body.appendChild(ta); ta.select();
-      document.execCommand("copy"); ta.remove();
-      const btn = document.getElementById("editor-copy");
-      btn.textContent = "✓ Copied!";
-      setTimeout(() => { btn.textContent = "📋 Copy content.js"; }, 2000);
-    });
+    const btn = document.getElementById("editor-publish");
+    const orig = btn.textContent;
+    btn.textContent = "Publishing...";
+    btn.disabled = true;
+
+    try {
+      const text = generateContentJS();
+      const res = await fetch(PUBLISH_API + "/api/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: text })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        btn.textContent = "✓ Published!";
+        btn.style.background = "var(--success)";
+        setTimeout(() => { btn.textContent = orig; btn.style.background = ""; btn.disabled = false; }, 3000);
+      } else {
+        throw new Error(data.error || "Unknown error");
+      }
+    } catch (err) {
+      btn.textContent = "✗ Failed";
+      btn.style.background = "var(--error)";
+      console.error("Publish failed:", err);
+      alert("Publish failed: " + err.message + "\n\nTry 'Download backup' instead and send it to me.");
+      setTimeout(() => { btn.textContent = orig; btn.style.background = ""; btn.disabled = false; }, 2000);
+    }
   }
 
   function downloadContent() {

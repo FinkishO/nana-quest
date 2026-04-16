@@ -63,4 +63,4 @@ const server = http.createServer((req, res) => {
   res.end("Not found");
 });
 
-server.listen(PORT, () => console.log(`Publish API running on :${PORT}`));
+server.listen(PORT, "0.0.0.0", () => console.log(`Publish API running on 0.0.0.0:${PORT}`));
