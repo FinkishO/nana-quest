@@ -801,7 +801,8 @@
   // ─── PUBLIC API ────────────────────────────────────
   window.APP = {
     rerender() { if (currentStage < 0) { app.innerHTML = ""; renderCard(); } else { const s = CONTENT.stages[currentStage]; if (s) goToStage(currentStage); } },
-    goToLanding() { currentStage = -1; updateProgress(); app.innerHTML = ""; renderCard(); }
+    goToLanding() { currentStage = -1; updateProgress(); app.innerHTML = ""; renderCard(); },
+    goToStage(i) { goToStage(i); }
   };
 
   // ─── INIT ──────────────────────────────────────────
