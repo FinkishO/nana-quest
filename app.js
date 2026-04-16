@@ -617,46 +617,45 @@
       el("p", { className: "stage-intro" }, [s.intro])
     );
 
+    const g = s.giftCard;
     const passWrap = el("div", { className: "boarding-pass" });
     const card = el("div", { className: "bp-card" });
 
-    // Front
-    const front = el("div", { className: "bp-front" });
-    const header = el("div", { className: "bp-header" }, [
-      el("div", { className: "bp-airline" }, ["✦ AURORA AIR"]),
-      el("div", { className: "bp-flight" }, [s.pass.flight])
+    // Front — Gift Card
+    const front = el("div", { className: "bp-front gc-front" });
+
+    // Decorative leaf accents
+    const leafTop = el("div", { className: "gc-leaf gc-leaf-top", innerHTML: "🌿" });
+    const leafBot = el("div", { className: "gc-leaf gc-leaf-bot", innerHTML: "🌿" });
+
+    const gcHeader = el("div", { className: "gc-header" }, [
+      el("div", { className: "gc-badge" }, ["✦"]),
+      el("div", { className: "gc-title" }, [g.title]),
+      el("div", { className: "gc-subtitle" }, [g.subtitle])
     ]);
 
-    const route = el("div", { className: "bp-route" }, [
-      el("div", { className: "bp-city" }, [
-        el("div", { className: "bp-city-code" }, [s.pass.from.substring(0, 3).toUpperCase()]),
-        el("div", { className: "bp-city-name" }, [s.pass.from])
-      ]),
-      el("div", { className: "bp-arrow", innerHTML: "✈︎" }),
-      el("div", { className: "bp-city" }, [
-        el("div", { className: "bp-city-code" }, [s.pass.to]),
-        el("div", { className: "bp-city-name" }, ["Destination"])
-      ])
+    const gcBody = el("div", { className: "gc-body" }, [
+      el("div", { className: "gc-for" }, ["For"]),
+      el("div", { className: "gc-recipient" }, [g.recipient]),
+      el("div", { className: "gc-desc" }, [g.description])
     ]);
 
-    const details = el("div", { className: "bp-details" }, [
-      el("div", {}, [el("div", { className: "bp-detail-label" }, ["Passenger"]), el("div", { className: "bp-detail-value" }, [s.pass.passenger])]),
-      el("div", {}, [el("div", { className: "bp-detail-label" }, ["Class"]), el("div", { className: "bp-detail-value" }, [s.pass.seatClass])]),
-      el("div", {}, [el("div", { className: "bp-detail-label" }, ["Date"]), el("div", { className: "bp-detail-value" }, [s.pass.date])]),
-      el("div", {}, [el("div", { className: "bp-detail-label" }, ["Gate"]), el("div", { className: "bp-detail-value" }, [s.pass.gate])]),
+    const gcDetails = el("div", { className: "gc-details" }, [
+      el("div", {}, [el("div", { className: "bp-detail-label" }, ["Redeem in"]), el("div", { className: "bp-detail-value gc-location" }, ["??? "])]),
+      el("div", {}, [el("div", { className: "bp-detail-label" }, ["Valid"]), el("div", { className: "bp-detail-value" }, [g.redeemDate])]),
+      el("div", {}, [el("div", { className: "bp-detail-label" }, ["From"]), el("div", { className: "bp-detail-value" }, [g.from])])
     ]);
 
-    const barcode = el("div", { className: "bp-barcode" });
-    for (let i = 0; i < 50; i++) {
-      const bar = el("div", { className: "bp-barcode-bar" });
-      bar.style.height = (20 + Math.random() * 20) + "px";
-      bar.style.width = (Math.random() > 0.3 ? 2 : 3) + "px";
-      barcode.appendChild(bar);
-    }
+    // Gift code strip (tappable)
+    const codeStrip = el("div", { className: "gc-code-strip" });
+    const codeLabel = el("div", { className: "gc-code-label" }, ["Gift Code"]);
+    const codeValue = el("div", { className: "gc-code-value" }, [g.code]);
+    const codeHint = el("div", { className: "gc-code-hint" }, ["↑ Tap to reveal where"]);
+    codeStrip.append(codeLabel, codeValue);
 
-    front.append(header, route, details, barcode, el("div", { className: "bp-barcode-hint" }, ["↑ Tap the barcode to scan"]));
+    front.append(leafTop, gcHeader, gcBody, gcDetails, codeStrip, codeHint, leafBot);
 
-    // Back (reveal)
+    // Back (reveal — same as before)
     const back = el("div", { className: "bp-back" }, [
       el("div", { className: "bp-destination" }, [s.revealDestination]),
       el("div", { className: "bp-poem" }, [s.poem.georgian]),
@@ -668,7 +667,7 @@
     card.append(front, back);
     passWrap.appendChild(card);
 
-    barcode.addEventListener("click", () => {
+    codeStrip.addEventListener("click", () => {
       card.classList.add("flipped");
       confetti();
       setTimeout(() => {
