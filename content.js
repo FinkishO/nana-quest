@@ -156,22 +156,23 @@ const CONTENT = {
       successMessage: "See? Some things just fit."
     },
 
-    // ── 6: BOARDING PASS (Bali reveal) ──
+    // ── 6: SPA GIFT CARD (Bali reveal) ──
     {
       id: "boarding",
       type: "boarding-pass",
-      icon: "✈️",
+      icon: "🌿",
       stageLabel: "VI",
-      title: "Gate Call",
-      intro: "You have a boarding pass. Something about the destination seems to be missing...",
-      pass: {
-        from: "Moscow",
-        to: "???",
-        passenger: "Nana",
-        seatClass: "♈ Aries First",
-        flight: "VK-0416",
-        gate: "B32",
-        date: "May 2026"
+      title: "A Gift",
+      intro: "Every quest needs a reward. This one's yours.",
+      giftCard: {
+        title: "Spa Day",
+        subtitle: "For body & soul",
+        recipient: "Nana",
+        description: "One full day of pampering — massage, facial, the works.",
+        redeemLocation: "Bali",
+        redeemDate: "May 2026",
+        code: "VIKING-NANA-0416",
+        from: "Your Viking"
       },
       revealDestination: "BALI",
       poem: {
