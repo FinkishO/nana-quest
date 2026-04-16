@@ -205,13 +205,14 @@
         break;
 
       case "boarding-pass":
-        fields += field(`${p}.pass.from`, "From City", stage.pass.from);
-        fields += field(`${p}.pass.to`, "To (mystery text)", stage.pass.to);
-        fields += field(`${p}.pass.passenger`, "Passenger Name", stage.pass.passenger);
-        fields += field(`${p}.pass.seatClass`, "Seat Class", stage.pass.seatClass);
-        fields += field(`${p}.pass.flight`, "Flight Number", stage.pass.flight);
-        fields += field(`${p}.pass.gate`, "Gate", stage.pass.gate);
-        fields += field(`${p}.pass.date`, "Date Text", stage.pass.date);
+        fields += field(`${p}.giftCard.title`, "Gift Card Title", stage.giftCard.title);
+        fields += field(`${p}.giftCard.subtitle`, "Subtitle", stage.giftCard.subtitle);
+        fields += field(`${p}.giftCard.recipient`, "Recipient Name", stage.giftCard.recipient);
+        fields += textarea(`${p}.giftCard.description`, "Description", stage.giftCard.description);
+        fields += field(`${p}.giftCard.redeemLocation`, "Redeem Location", stage.giftCard.redeemLocation);
+        fields += field(`${p}.giftCard.redeemDate`, "Redeem Date", stage.giftCard.redeemDate);
+        fields += field(`${p}.giftCard.code`, "Gift Code", stage.giftCard.code);
+        fields += field(`${p}.giftCard.from`, "From", stage.giftCard.from);
         fields += field(`${p}.revealDestination`, "Reveal Destination", stage.revealDestination);
         fields += textarea(`${p}.poem.georgian`, "Poem (Georgian)", stage.poem.georgian);
         fields += textarea(`${p}.poem.english`, "Poem (English)", stage.poem.english);
@@ -228,7 +229,7 @@
 
     const typeLabels = {
       cipher: "Cipher", scratch: "Scratch Card", "vocab-game": "Vocab Game",
-      trivia: "Trivia", jigsaw: "Jigsaw", "boarding-pass": "Boarding Pass", finale: "Finale"
+      trivia: "Trivia", jigsaw: "Jigsaw", "boarding-pass": "Gift Card", finale: "Finale"
     };
     return section(`${stage.stageLabel}: ${stage.title} (${typeLabels[stage.type] || stage.type})`, fields);
   }
