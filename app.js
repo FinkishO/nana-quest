@@ -333,13 +333,36 @@
 
       let scratching = false;
       let revealed = false;
+      let strokeCount = 0;
+      const scratchR = Math.max(30, rect.width * 0.08);
 
       function scratch(x, y) {
         ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = "rgba(255,255,255,1)";
+        // Draw a bigger circle at DPR-scaled coords for real coverage
         ctx.beginPath();
-        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.arc(x, y, scratchR, 0, Math.PI * 2);
         ctx.fill();
+        // Also draw a connecting rect from last pos for smooth strokes
+        if (scratch.lastX != null) {
+          ctx.beginPath();
+          ctx.moveTo(scratch.lastX - scratchR * 0.6, scratch.lastY);
+          ctx.lineTo(x - scratchR * 0.6, y);
+          ctx.lineTo(x + scratchR * 0.6, y);
+          ctx.lineTo(scratch.lastX + scratchR * 0.6, scratch.lastY);
+          ctx.closePath();
+          ctx.fill();
+        }
+        scratch.lastX = x; scratch.lastY = y;
+        strokeCount++;
+        // Hide overlay text after first few strokes
+        if (strokeCount === 3 && overlayText.parentNode) {
+          overlayText.style.transition = "opacity .3s";
+          overlayText.style.opacity = "0";
+        }
+        if (strokeCount % 15 === 0) checkReveal();
       }
+      scratch.lastX = null; scratch.lastY = null;
 
       function getPos(e) {
         const r = canvas.getBoundingClientRect();
@@ -349,10 +372,19 @@
 
       function checkReveal() {
         if (revealed) return;
-        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        let clear = 0;
-        for (let i = 3; i < data.length; i += 16) { if (data[i] === 0) clear++; }
-        if (clear / (data.length / 16) > 0.45) {
+        const w = canvas.width;
+        const h = canvas.height;
+        // Sample a uniform grid of ~2500 points regardless of canvas size
+        const step = Math.max(1, Math.floor(Math.sqrt(w * h / 2500)));
+        const data = ctx.getImageData(0, 0, w, h).data;
+        let clear = 0, total = 0;
+        for (let py = 0; py < h; py += step) {
+          for (let px = 0; px < w; px += step) {
+            total++;
+            if (data[(py * w + px) * 4 + 3] < 10) clear++;
+          }
+        }
+        if (total > 0 && clear / total > 0.25) {
           revealed = true;
           canvas.style.transition = "opacity .5s";
           canvas.style.opacity = "0";
@@ -368,10 +400,10 @@
         }
       }
 
-      canvas.addEventListener("mousedown", e => { scratching = true; const p = getPos(e); scratch(p.x, p.y); });
+      canvas.addEventListener("mousedown", e => { scratching = true; scratch.lastX = null; scratch.lastY = null; const p = getPos(e); scratch(p.x, p.y); });
       canvas.addEventListener("mousemove", e => { if (scratching) { const p = getPos(e); scratch(p.x, p.y); } });
       canvas.addEventListener("mouseup", () => { scratching = false; checkReveal(); });
-      canvas.addEventListener("touchstart", e => { e.preventDefault(); scratching = true; const p = getPos(e); scratch(p.x, p.y); }, { passive: false });
+      canvas.addEventListener("touchstart", e => { e.preventDefault(); scratching = true; scratch.lastX = null; scratch.lastY = null; const p = getPos(e); scratch(p.x, p.y); }, { passive: false });
       canvas.addEventListener("touchmove", e => { e.preventDefault(); if (scratching) { const p = getPos(e); scratch(p.x, p.y); } }, { passive: false });
       canvas.addEventListener("touchend", () => { scratching = false; checkReveal(); });
     };
